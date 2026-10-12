@@ -36,82 +36,137 @@ if "user_name" not in st.session_state:
     st.session_state.user_name = ""
 if "auth_tab" not in st.session_state:
     st.session_state.auth_tab = "login"
-if "panel_view" not in st.session_state:
-    st.session_state.panel_view = "outputs"
-
-# Input state defaults
-if "input_category" not in st.session_state:
-    st.session_state.input_category = "Clothing & Fashion"
-if "input_budget" not in st.session_state:
-    st.session_state.input_budget = 500000
-if "input_tier" not in st.session_state:
-    st.session_state.input_tier = "Mid-Range"
-if "input_style" not in st.session_state:
-    st.session_state.input_style = "Digital-First"
-if "input_rev_before" not in st.session_state:
-    st.session_state.input_rev_before = 1500000
-if "input_rev_after" not in st.session_state:
-    st.session_state.input_rev_after = 2750000
 
 # ----------------------------------------------------------------------------
-# AUTHENTICATION PAGE (SHOWN WHEN NOT LOGGED IN)
+# PREMIUM AUTHENTICATION SCREEN (SHOWN WHEN NOT LOGGED IN)
 # ----------------------------------------------------------------------------
 if not st.session_state.authenticated:
     st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-html, body, [class*="css"], .stApp { font-family: 'Plus Jakarta Sans', sans-serif; background: #0B1120; }
-#MainMenu, footer, header[data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="collapsedControl"] {
-    display: none !important; visibility: hidden !important;
+html, body, [class*="css"], .stApp {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    background: #0B1120 !important;
 }
-.block-container { padding: 3rem 1rem !important; max-width: 500px !important; margin: 0 auto !important; }
+#MainMenu, footer, header[data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="collapsedControl"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+.block-container {
+    padding: 2.5rem 1rem !important;
+    max-width: 460px !important;
+    margin: 0 auto !important;
+}
 
-.auth-header { text-align: center; margin-bottom: 24px; }
-.auth-brand { font-size: 2.2rem; font-weight: 800; color: #FFFFFF; letter-spacing: -.03em; margin: 0; }
-.auth-sub { font-size: .82rem; color: #38BDF8; font-weight: 600; letter-spacing: .02em; margin-top: 4px; }
-.auth-author { font-size: .75rem; color: #94A3B8; margin-top: 6px; }
-
-.auth-card {
-    background: #111827;
-    border: 1px solid #1E293B;
-    border-radius: 20px;
-    padding: 30px 32px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+/* Glassmorphism Card Container */
+.auth-box {
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 24px;
+    padding: 34px 32px 30px;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 30px -10px rgba(37, 99, 235, 0.25);
+    backdrop-filter: blur(16px);
     margin-top: 10px;
 }
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 22px;
+}
+.auth-icon {
+    font-size: 2.6rem;
+    display: inline-block;
+    filter: drop-shadow(0 4px 12px rgba(37, 99, 235, 0.4));
+    margin-bottom: 4px;
+}
+.auth-brand {
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -.03em;
+    margin: 0;
+    line-height: 1.1;
+}
+.auth-sub {
+    font-size: .8rem;
+    color: #38BDF8;
+    font-weight: 600;
+    letter-spacing: .02em;
+    margin-top: 6px;
+}
+.auth-credit {
+    font-size: .74rem;
+    color: #94A3B8;
+    margin-top: 4px;
+}
+
+/* Auth Tabs */
+.auth-tab-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+/* Input Fields */
 .stTextInput > div > div > input {
-    background: #1E293B !important;
+    background: #0F172A !important;
     border: 1px solid #334155 !important;
-    border-radius: 10px !important;
-    color: #F1F5F9 !important;
+    border-radius: 12px !important;
+    color: #F8FAFC !important;
     font-size: .92rem !important;
+    padding: 10px 14px !important;
 }
 .stTextInput > div > div > input:focus {
-    border-color: #2563EB !important;
+    border-color: #38BDF8 !important;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
 }
-.stTextInput label p { color: #94A3B8 !important; font-weight: 600 !important; font-size: .84rem !important; }
+.stTextInput label p {
+    color: #94A3B8 !important;
+    font-weight: 600 !important;
+    font-size: .82rem !important;
+}
+
+/* Submit Button */
 .stButton > button {
-    background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
-    color: #fff !important;
-    border: none !important;
-    border-radius: 10px !important;
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 12px !important;
     font-weight: 700 !important;
     font-size: .96rem !important;
-    padding: 10px 20px !important;
+    padding: 11px 20px !important;
     width: 100% !important;
+    box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.5) !important;
+    transition: all .2s ease !important;
 }
 .stButton > button:hover {
-    background: linear-gradient(135deg, #1D4ED8, #1E40AF) !important;
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 12px 25px -4px rgba(37, 99, 235, 0.6) !important;
+}
+
+.auth-hint {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px dashed #334155;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: .78rem;
+    color: #94A3B8;
+    margin-top: 18px;
+    text-align: center;
+}
+.auth-hint b {
+    color: #38BDF8;
 }
 </style>
 """, unsafe_allow_html=True)
 
     st.markdown("""
     <div class="auth-header">
-      <div style="font-size: 2.5rem; margin-bottom: 6px;">📈</div>
+      <div class="auth-icon">📈</div>
       <h1 class="auth-brand">MarketOpt</h1>
-      <div class="auth-sub">Intelligent Marketing Budget Optimization and ROI Prediction System</div>
-      <div class="auth-author">Made by Lithish Balaji</div>
+      <div class="auth-sub">Intelligent Marketing Budget Optimization</div>
+      <div class="auth-credit">Made by Lithish Balaji</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -126,23 +181,23 @@ html, body, [class*="css"], .stApp { font-family: 'Plus Jakarta Sans', sans-seri
             st.rerun()
 
     if st.session_state.auth_tab == "login":
-        st.markdown("<h3 style='color:#F1F5F9; font-size:1.2rem; margin-top:14px;'>Log in to your account</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='color:#E2E8F0; font-size:.95rem; font-weight:700; margin:14px 0 8px;'>Sign in to your account</p>", unsafe_allow_html=True)
         with st.form("form_login"):
             email = st.text_input("Username or Email", placeholder="owner or you@example.com")
             password = st.text_input("Password", type="password", placeholder="Enter your password")
-            submitted = st.form_submit_button("Log In to MarketOpt", use_container_width=True)
+            submitted = st.form_submit_button("Sign In to MarketOpt ➔", use_container_width=True)
 
         if submitted:
             if not email or not password:
                 st.error("Please enter both username/email and password.")
-            # Master Owner Credentials (No email or Supabase connection needed)
+            # Master Owner Bypass
             elif email.strip().lower() == "owner" and password == "Owner@123":
                 st.session_state.authenticated = True
                 st.session_state.user_email = "owner@marketopt.internal"
                 st.session_state.user_name = "Owner (Lithish Balaji)"
                 st.rerun()
             elif supabase is None:
-                st.error("Supabase client not configured. Check your .streamlit/secrets.toml file.")
+                st.error("Supabase client not configured in secrets.")
             else:
                 try:
                     res = supabase.auth.sign_in_with_password({"email": email.strip(), "password": password})
@@ -154,14 +209,20 @@ html, body, [class*="css"], .stApp { font-family: 'Plus Jakarta Sans', sans-seri
                 except Exception as err:
                     st.error(f"Login failed: {err}")
 
+        st.markdown("""
+        <div class="auth-hint">
+          💡 <b>Admin Access:</b> Username <code>owner</code> | Password <code>Owner@123</code>
+        </div>
+        """, unsafe_allow_html=True)
+
     else:
-        st.markdown("<h3 style='color:#F1F5F9; font-size:1.2rem; margin-top:14px;'>Create a new account</h3>", unsafe_allow_html=True)
+        st.markdown("<p style='color:#E2E8F0; font-size:.95rem; font-weight:700; margin:14px 0 8px;'>Create a new account</p>", unsafe_allow_html=True)
         with st.form("form_signup"):
             full_name = st.text_input("Full Name", placeholder="e.g. Lithish Balaji")
-            email = st.text_input("Email", placeholder="you@example.com")
-            password = st.text_input("Password", type="password", placeholder="Minimum 6 characters")
-            confirm_pw = st.text_input("Confirm Password", type="password", placeholder="Repeat password")
-            submitted = st.form_submit_button("Create Account", use_container_width=True)
+            email = st.text_input("Email Address", placeholder="you@example.com")
+            password = st.text_input("Password", type="password", placeholder="At least 6 characters")
+            confirm_pw = st.text_input("Confirm Password", type="password", placeholder="Repeat your password")
+            submitted = st.form_submit_button("Create Free Account ➔", use_container_width=True)
 
         if submitted:
             if not all([full_name, email, password, confirm_pw]):
@@ -171,7 +232,7 @@ html, body, [class*="css"], .stApp { font-family: 'Plus Jakarta Sans', sans-seri
             elif len(password) < 6:
                 st.error("Password must be at least 6 characters.")
             elif supabase is None:
-                st.error("Supabase client not configured. Check your .streamlit/secrets.toml file.")
+                st.error("Supabase client not configured in secrets.")
             else:
                 try:
                     res = supabase.auth.sign_up({
@@ -185,7 +246,7 @@ html, body, [class*="css"], .stApp { font-family: 'Plus Jakarta Sans', sans-seri
                         st.session_state.user_name = full_name.strip()
                         st.rerun()
                     else:
-                        st.success("Account registered! If confirmation is required, check your email, then log in.")
+                        st.success("Account created! Please check your email for confirmation if enabled, then log in.")
                         st.session_state.auth_tab = "login"
                         st.rerun()
                 except Exception as err:
@@ -340,19 +401,25 @@ def count(x):
 
 
 # ----------------------------------------------------------------------------
-# 4. STYLING (MODERN DASHBOARD UI)
+# 4. STYLING (MODERN DASHBOARD UI & SLIDING SIDEBAR)
 # ----------------------------------------------------------------------------
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-html, body, [class*="css"], .stApp {{ font-family: 'Plus Jakarta Sans', sans-serif; }}
+html, body, [class*="css"], .stApp {{
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}}
 .stApp {{ background: {PAPER}; }}
 #MainMenu, footer {{ visibility: hidden; height: 0; }}
 header[data-testid="stHeader"] {{ background: transparent !important; }}
-.block-container {{ padding: 1rem 2rem 3rem; max-width: 1320px; }}
+.block-container {{ padding: 1.2rem 2.2rem 3rem; max-width: 1320px; }}
 
-/* Ensure high contrast for all dashboard text */
+/* High-contrast dashboard text */
 .sec {{ font-size: 1.25rem; font-weight: 800; color: #0F172A !important; margin: 26px 0 14px; letter-spacing: -.01em; }}
+.hero * {{ color: #FFFFFF; }}
+.hero .lbl {{ color: #94A3B8 !important; }}
+.rev-box * {{ color: #FFFFFF; }}
+.rev-label {{ color: #94A3B8 !important; }}
 .kpi .k {{ font-size: .78rem; color: #64748B !important; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }}
 .kpi .v {{ font-size: 1.7rem; font-weight: 800; color: #0F172A !important; letter-spacing: -.02em; margin-top: 4px; }}
 .kpi .s {{ font-size: .8rem; color: #64748B !important; margin-top: 3px; }}
@@ -361,54 +428,87 @@ header[data-testid="stHeader"] {{ background: transparent !important; }}
 .ch .a {{ font-size: .95rem; color: #475569 !important; font-weight: 600; }}
 .ch .r {{ font-size: .8rem; color: #64748B !important; margin-top: 6px; line-height: 1.45; }}
 
-/* Sidebar appearance */
+/* Sidebar Appearance */
 [data-testid="stSidebar"] {{
     background: #0B1120 !important;
     border-right: 1px solid #1E293B !important;
 }}
-
-/* Visible, styled collapse/expand arrow button */
-[data-testid="collapsedControl"] {{
-    display: flex !important;
-    visibility: visible !important;
-    top: 12px !important;
-    left: 12px !important;
-    background: #1E293B !important;
-    color: #F8FAFC !important;
-    border-radius: 8px !important;
-    border: 1px solid #334155 !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-    z-index: 99999 !important;
-}}
-[data-testid="stSidebarCollapseButton"] button {{
-    color: #94A3B8 !important;
-}}
-[data-testid="stSidebarCollapseButton"] button:hover {{
-    color: #FFFFFF !important;
-    background: #1E293B !important;
-}}
-
 [data-testid="stSidebar"] * {{ color: #F1F5F9; }}
-[data-testid="stSidebar"] label p {{ font-weight: 600; font-size: .84rem; color: #94A3B8; }}
+[data-testid="stSidebar"] label p {{ font-weight: 600; font-size: .84rem; color: #94A3B8 !important; }}
 [data-testid="stSidebar"] [data-baseweb="select"] > div,
 [data-testid="stSidebar"] [data-baseweb="input"] > div,
 [data-testid="stSidebar"] [data-baseweb="base-input"] {{ background: #1E293B; border-color: #334155; border-radius: 8px; }}
 [data-testid="stSidebar"] input {{ color: #FFFFFF; font-weight: 600; }}
+
+/* SLIDING SIDEBAR CONTROLS: Arrow mark to open & close */
+/* Arrow button on output screen to slide input panel open */
+[data-testid="collapsedControl"] {{
+    display: flex !important;
+    visibility: visible !important;
+    top: 14px !important;
+    left: 14px !important;
+    background: #0B1120 !important;
+    border: 1px solid #334155 !important;
+    border-radius: 10px !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3) !important;
+    z-index: 99999 !important;
+    padding: 2px !important;
+    transition: all .2s ease !important;
+}}
+[data-testid="collapsedControl"]:hover {{
+    background: #1E293B !important;
+    border-color: #38BDF8 !important;
+}}
+[data-testid="collapsedControl"] svg {{
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    width: 22px !important;
+    height: 22px !important;
+}}
+
+/* Arrow button inside sidebar to slide input panel closed */
+[data-testid="stSidebarCollapseButton"] {{
+    display: flex !important;
+    visibility: visible !important;
+}}
+[data-testid="stSidebarCollapseButton"] button {{
+    color: #94A3B8 !important;
+    background: #1E293B !important;
+    border-radius: 8px !important;
+    border: 1px solid #334155 !important;
+}}
+[data-testid="stSidebarCollapseButton"] button:hover {{
+    color: #FFFFFF !important;
+    background: #334155 !important;
+    border-color: #38BDF8 !important;
+}}
+[data-testid="stSidebarCollapseButton"] svg {{
+    fill: #E2E8F0 !important;
+}}
+
+/* Sidebar Brand Header */
 .brand {{ font-weight: 800; font-size: 1.35rem; letter-spacing: -.02em; color: #FFFFFF; line-height: 1.2; margin-bottom: 2px; }}
 .brand-credits {{ font-size: .76rem; color: #38BDF8; font-weight: 600; margin-bottom: 6px; letter-spacing: .01em; }}
 .brand-sub {{ font-size: .74rem; color: #94A3B8; margin-bottom: 1.4rem; line-height: 1.4; border-bottom: 1px solid #1E293B; padding-bottom: 12px; }}
 
-/* Top Navbar */
-.top-nav {{
+/* Top Navbar for Logged In User */
+.top-navbar {{
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
-    background: #FFFFFF;
-    border: 1px solid {LINE};
-    border-radius: 14px;
-    padding: 10px 18px;
-    margin-bottom: 18px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    gap: 12px;
+    margin-bottom: 14px;
+}}
+.user-pill {{
+    background: #0B1120;
+    border: 1px solid #1E293B;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: .84rem;
+    font-weight: 600;
+    color: #F8FAFC;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }}
 
 .hero {{ background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 20px;
@@ -425,17 +525,7 @@ header[data-testid="stHeader"] {{ background: transparent !important; }}
 .legend i {{ display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }}
 
 .kpi {{ background: #fff; border: 1px solid {LINE}; border-radius: 16px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }}
-.kpi .k {{ font-size: .78rem; color: {MUTED}; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }}
-.kpi .v {{ font-size: 1.7rem; font-weight: 800; color: {INK}; letter-spacing: -.02em; margin-top: 4px; }}
-.kpi .s {{ font-size: .8rem; color: {MUTED}; margin-top: 3px; }}
-
 .ch {{ background: #fff; border: 1px solid {LINE}; border-radius: 16px; padding: 18px 20px; border-top: 4px solid; height: 100%; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }}
-.ch .n {{ font-weight: 700; color: {INK}; font-size: 1rem; }}
-.ch .p {{ font-size: 1.85rem; font-weight: 800; letter-spacing: -.03em; color: {INK}; margin: 4px 0 0; }}
-.ch .a {{ font-size: .95rem; color: #475569; font-weight: 600; }}
-.ch .r {{ font-size: .8rem; color: {MUTED}; margin-top: 6px; line-height: 1.45; }}
-
-.sec {{ font-size: 1.25rem; font-weight: 800; color: {INK}; margin: 26px 0 14px; letter-spacing: -.01em; }}
 
 /* REVENUE IMPACT CARD */
 .rev-box {{ background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 18px; padding: 26px 30px; color: #fff; margin-bottom: 22px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.12); border: 1px solid #334155; }}
@@ -444,7 +534,6 @@ header[data-testid="stHeader"] {{ background: transparent !important; }}
 .rev-badge {{ background: #10B981; color: #fff; font-weight: 700; font-size: .92rem; padding: 6px 16px; border-radius: 999px; }}
 .rev-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; }}
 .rev-item {{ background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); padding: 16px 20px; border-radius: 14px; }}
-.rev-label {{ font-size: .8rem; color: #94A3B8; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; }}
 .rev-val {{ font-size: 1.85rem; font-weight: 800; letter-spacing: -.02em; margin-top: 6px; }}
 
 /* CALCULATION BREAKDOWN PANEL */
@@ -456,32 +545,18 @@ header[data-testid="stHeader"] {{ background: transparent !important; }}
 .calc-math-box {{ background: #FFFFFF; border: 1px solid #CBD5E1; padding: 8px 14px; border-radius: 8px; font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: .88rem; margin-top: 6px; display: inline-block; }}
 .stDownloadButton button {{ background: {INK}; color: #fff; border-radius: 10px; border: 0; font-weight: 600; padding: .6rem 1.4rem; }}
 .stDownloadButton button:hover {{ background: #1E293B; color: #fff; }}
-
-/* Standalone Input Card */
-.input-card {{ background: #FFFFFF; border: 1px solid {LINE}; border-radius: 18px; padding: 26px 30px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); margin-bottom: 22px; }}
 </style>
 """, unsafe_allow_html=True)
 
 
 # ----------------------------------------------------------------------------
-# 5. TOP NAVIGATION & ARROW TOGGLE BUTTON
+# 5. TOP NAVBAR (USER BADGE & LOGOUT)
 # ----------------------------------------------------------------------------
-c_arrow, c_spacer, c_user, c_out = st.columns([1.6, 5.4, 2.8, 1.2])
-
-with c_arrow:
-    # Sleek arrow toggle button
-    if st.session_state.panel_view == "inputs":
-        if st.button("Outputs ▶", key="btn_panel_arrow", use_container_width=True, help="Switch to Output Dashboard"):
-            st.session_state.panel_view = "outputs"
-            st.rerun()
-    else:
-        if st.button("◀ Inputs", key="btn_panel_arrow", use_container_width=True, help="Switch to Input Settings Panel"):
-            st.session_state.panel_view = "inputs"
-            st.rerun()
+c_spacer, c_user, c_out = st.columns([7.2, 2.8, 1.2])
 
 with c_user:
     st.markdown(f"""
-    <div style="text-align: right; font-size: .88rem; color: #0F172A; font-weight: 700; padding-top: 8px;">
+    <div style="text-align: right; font-size: .86rem; color: #0F172A; font-weight: 700; padding-top: 6px;">
       👤 <span>{st.session_state.user_name}</span>
     </div>
     """, unsafe_allow_html=True)
@@ -497,12 +572,11 @@ with c_out:
         st.session_state.user_email = ""
         st.session_state.user_name = ""
         st.session_state.auth_tab = "login"
-        st.session_state.panel_view = "outputs"
         st.rerun()
 
 
 # ----------------------------------------------------------------------------
-# 6. SIDEBAR CONTROLS (Always available when sidebar is opened)
+# 6. SIDEBAR: INPUT CONTROLS (SLIDES IN AND OUT VIA ARROW BUTTONS)
 # ----------------------------------------------------------------------------
 with st.sidebar:
     st.markdown('''
@@ -511,116 +585,34 @@ with st.sidebar:
     <div class="brand-sub">Intelligent Marketing Budget Optimization and ROI Prediction System</div>
     ''', unsafe_allow_html=True)
 
-    cat_idx = CATEGORIES.index(st.session_state.input_category) if st.session_state.input_category in CATEGORIES else 0
-    st.session_state.input_category = st.selectbox("1. Business Category", CATEGORIES, index=cat_idx, key="sb_cat")
-
-    st.session_state.input_budget = st.number_input(
-        "2. Total Marketing Budget (₹)",
-        min_value=10000,
-        max_value=100000000,
-        value=int(st.session_state.input_budget),
-        step=25000,
-        key="sb_budget"
-    )
-
-    tier_idx = TIERS.index(st.session_state.input_tier) if st.session_state.input_tier in TIERS else 1
-    st.session_state.input_tier = st.selectbox("3. Budget Category", TIERS, index=tier_idx, key="sb_tier")
-
-    style_idx = STYLES.index(st.session_state.input_style) if st.session_state.input_style in STYLES else 0
-    st.session_state.input_style = st.radio("4. Media Type", STYLES, index=style_idx, key="sb_style")
+    category = st.selectbox("1. Business Category", CATEGORIES, index=0)
+    budget = st.number_input("2. Total Marketing Budget (₹)", min_value=10000, max_value=100000000, value=500000, step=25000)
+    tier = st.selectbox("3. Budget Category", TIERS, index=1)
+    style = st.radio("4. Media Type", STYLES, index=0)
 
     st.markdown("---")
     st.markdown("<b style='color:#F1F5F9;'>Revenue Impact Inputs</b>", unsafe_allow_html=True)
-    st.session_state.input_rev_before = st.number_input(
+    rev_before = st.number_input(
         "Revenue Before Marketing (₹)",
         min_value=0,
         max_value=1000000000,
-        value=int(st.session_state.input_rev_before),
+        value=1500000,
         step=50000,
-        help="Enter current monthly revenue before executing this marketing plan",
-        key="sb_rev_before"
+        help="Enter current monthly revenue before executing this marketing plan"
     )
-    st.session_state.input_rev_after = st.number_input(
+    rev_after = st.number_input(
         "Revenue After Marketing (₹)",
         min_value=0,
         max_value=1000000000,
-        value=int(st.session_state.input_rev_after),
+        value=2750000,
         step=50000,
-        help="Enter projected or realized monthly revenue after marketing execution",
-        key="sb_rev_after"
+        help="Enter projected or realized monthly revenue after marketing execution"
     )
 
 
 # ----------------------------------------------------------------------------
-# 7. STANDALONE INPUT SETTINGS PANEL (When in "inputs" view)
+# 7. CALCULATIONS
 # ----------------------------------------------------------------------------
-if st.session_state.panel_view == "inputs":
-    st.markdown('<div class="sec">⚙️ Marketing Optimization Input Panel</div>', unsafe_allow_html=True)
-    st.markdown("<p style='color:#64748B;'>Configure your business criteria, spending limits, and revenue benchmarks below:</p>", unsafe_allow_html=True)
-
-    with st.container():
-        st.markdown('<div class="input-card">', unsafe_allow_html=True)
-        col_in1, col_in2 = st.columns(2)
-
-        with col_in1:
-            cat_idx = CATEGORIES.index(st.session_state.input_category) if st.session_state.input_category in CATEGORIES else 0
-            st.session_state.input_category = st.selectbox("1. Business Category", CATEGORIES, index=cat_idx, key="main_cat")
-
-            st.session_state.input_budget = st.number_input(
-                "2. Total Marketing Budget (₹)",
-                min_value=10000,
-                max_value=100000000,
-                value=int(st.session_state.input_budget),
-                step=25000,
-                key="main_budget"
-            )
-
-            tier_idx = TIERS.index(st.session_state.input_tier) if st.session_state.input_tier in TIERS else 1
-            st.session_state.input_tier = st.selectbox("3. Budget Category Tier", TIERS, index=tier_idx, key="main_tier")
-
-        with col_in2:
-            style_idx = STYLES.index(st.session_state.input_style) if st.session_state.input_style in STYLES else 0
-            st.session_state.input_style = st.radio("4. Media Strategy", STYLES, index=style_idx, key="main_style")
-
-            st.session_state.input_rev_before = st.number_input(
-                "5. Revenue Before Marketing (₹)",
-                min_value=0,
-                max_value=1000000000,
-                value=int(st.session_state.input_rev_before),
-                step=50000,
-                key="main_rev_before"
-            )
-
-            st.session_state.input_rev_after = st.number_input(
-                "6. Projected Revenue After Marketing (₹)",
-                min_value=0,
-                max_value=100000000,
-                value=int(st.session_state.input_rev_after),
-                step=50000,
-                key="main_rev_after"
-            )
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    c_run1, c_run2, c_run3 = st.columns([1, 2, 1])
-    with c_run2:
-        if st.button("🚀 View Optimization Results ▶", use_container_width=True, key="btn_run_opt"):
-            st.session_state.panel_view = "outputs"
-            st.rerun()
-
-    st.stop()
-
-
-# ----------------------------------------------------------------------------
-# 8. OUTPUT PANEL CALCULATIONS & DASHBOARD
-# ----------------------------------------------------------------------------
-category = st.session_state.input_category
-budget = st.session_state.input_budget
-tier = st.session_state.input_tier
-style = st.session_state.input_style
-rev_before = st.session_state.input_rev_before
-rev_after = st.session_state.input_rev_after
-
 # Budget shares prediction based on dataset & KNN
 pct = predict_split(category, tier, style)
 amounts_raw = np.round(pct / 100 * budget).astype(int)
@@ -676,7 +668,7 @@ top_channel = df_results.sort_values("Share (%)", ascending=False).iloc[0]
 
 
 # ----------------------------------------------------------------------------
-# 9. HERO HEADER & TOP CHANNEL DISPLAY
+# 8. HERO HEADER & TOP CHANNEL DISPLAY
 # ----------------------------------------------------------------------------
 bar = "".join(
     f'<div style="width:{p}%;background:{COLORS[c]}">{(f"{p:.0f}%" if p >= 7 else "")}</div>'
@@ -711,7 +703,7 @@ k4.markdown(f'<div class="kpi"><div class="k">Customer Growth Range</div><div cl
 
 
 # ----------------------------------------------------------------------------
-# 10. REVENUE IMPACT ANALYSIS AREA
+# 9. REVENUE IMPACT ANALYSIS AREA
 # ----------------------------------------------------------------------------
 st.markdown('<div class="sec">Revenue Impact Analysis</div>', unsafe_allow_html=True)
 st.markdown(f"""
@@ -749,7 +741,7 @@ st.markdown(f"""
 
 
 # ----------------------------------------------------------------------------
-# 11. SECTION-BY-SECTION BUDGET ALLOCATION CARDS
+# 10. SECTION-BY-SECTION BUDGET ALLOCATION CARDS
 # ----------------------------------------------------------------------------
 st.markdown('<div class="sec">Allocated Budget & Predicted Customer Increase Per Section</div>', unsafe_allow_html=True)
 
@@ -778,7 +770,7 @@ for i, row in df_results.iterrows():
 
 
 # ----------------------------------------------------------------------------
-# 12. CALCULATION BREAKDOWN PANEL
+# 11. CALCULATION BREAKDOWN PANEL
 # ----------------------------------------------------------------------------
 st.markdown('<div class="sec">Section Calculation Breakdown & Formula Inspector</div>', unsafe_allow_html=True)
 
@@ -856,7 +848,7 @@ else:
 
 
 # ----------------------------------------------------------------------------
-# 13. STREAMLINED BREAKDOWN TABLE & CSV DOWNLOAD
+# 12. STREAMLINED BREAKDOWN TABLE & CSV DOWNLOAD
 # ----------------------------------------------------------------------------
 st.markdown('<div class="sec">Complete Section Breakdown Table</div>', unsafe_allow_html=True)
 
