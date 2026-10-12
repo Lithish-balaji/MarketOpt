@@ -7,12 +7,192 @@ import pandas as pd
 import streamlit as st
 from sklearn.neighbors import KNeighborsRegressor
 
+# ----------------------------------------------------------------------------
+# SUPABASE CLIENT INITIALIZATION
+# ----------------------------------------------------------------------------
+try:
+    from supabase import create_client
+    supabase_url = st.secrets.get("SUPABASE_URL", "")
+    supabase_key = st.secrets.get("SUPABASE_KEY", "")
+    supabase = create_client(supabase_url, supabase_key) if supabase_url and supabase_key else None
+except Exception:
+    supabase = None
+
 st.set_page_config(
     page_title="MarketOpt – Marketing Budget Optimization",
     page_icon="📈",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# ----------------------------------------------------------------------------
+# SESSION STATE INITIALIZATION
+# ----------------------------------------------------------------------------
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+if "user_email" not in st.session_state:
+    st.session_state.user_email = ""
+if "user_name" not in st.session_state:
+    st.session_state.user_name = ""
+if "auth_tab" not in st.session_state:
+    st.session_state.auth_tab = "login"
+if "panel_view" not in st.session_state:
+    st.session_state.panel_view = "outputs"
+
+# Input state defaults
+if "input_category" not in st.session_state:
+    st.session_state.input_category = "Clothing & Fashion"
+if "input_budget" not in st.session_state:
+    st.session_state.input_budget = 500000
+if "input_tier" not in st.session_state:
+    st.session_state.input_tier = "Mid-Range"
+if "input_style" not in st.session_state:
+    st.session_state.input_style = "Digital-First"
+if "input_rev_before" not in st.session_state:
+    st.session_state.input_rev_before = 1500000
+if "input_rev_after" not in st.session_state:
+    st.session_state.input_rev_after = 2750000
+
+# ----------------------------------------------------------------------------
+# AUTHENTICATION PAGE (SHOWN WHEN NOT LOGGED IN)
+# ----------------------------------------------------------------------------
+if not st.session_state.authenticated:
+    st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+html, body, [class*="css"], .stApp { font-family: 'Plus Jakarta Sans', sans-serif; background: #0B1120; }
+#MainMenu, footer, header[data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="collapsedControl"] {
+    display: none !important; visibility: hidden !important;
+}
+.block-container { padding: 3rem 1rem !important; max-width: 500px !important; margin: 0 auto !important; }
+
+.auth-header { text-align: center; margin-bottom: 24px; }
+.auth-brand { font-size: 2.2rem; font-weight: 800; color: #FFFFFF; letter-spacing: -.03em; margin: 0; }
+.auth-sub { font-size: .82rem; color: #38BDF8; font-weight: 600; letter-spacing: .02em; margin-top: 4px; }
+.auth-author { font-size: .75rem; color: #94A3B8; margin-top: 6px; }
+
+.auth-card {
+    background: #111827;
+    border: 1px solid #1E293B;
+    border-radius: 20px;
+    padding: 30px 32px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    margin-top: 10px;
+}
+.stTextInput > div > div > input {
+    background: #1E293B !important;
+    border: 1px solid #334155 !important;
+    border-radius: 10px !important;
+    color: #F1F5F9 !important;
+    font-size: .92rem !important;
+}
+.stTextInput > div > div > input:focus {
+    border-color: #2563EB !important;
+}
+.stTextInput label p { color: #94A3B8 !important; font-weight: 600 !important; font-size: .84rem !important; }
+.stButton > button {
+    background: linear-gradient(135deg, #2563EB, #1D4ED8) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    font-size: .96rem !important;
+    padding: 10px 20px !important;
+    width: 100% !important;
+}
+.stButton > button:hover {
+    background: linear-gradient(135deg, #1D4ED8, #1E40AF) !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="auth-header">
+      <div style="font-size: 2.5rem; margin-bottom: 6px;">📈</div>
+      <h1 class="auth-brand">MarketOpt</h1>
+      <div class="auth-sub">Intelligent Marketing Budget Optimization and ROI Prediction System</div>
+      <div class="auth-author">Made by Lithish Balaji</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    c_tab1, c_tab2 = st.columns(2)
+    with c_tab1:
+        if st.button("🔑 Log In", key="tab_login", use_container_width=True):
+            st.session_state.auth_tab = "login"
+            st.rerun()
+    with c_tab2:
+        if st.button("✨ Sign Up", key="tab_signup", use_container_width=True):
+            st.session_state.auth_tab = "signup"
+            st.rerun()
+
+    if st.session_state.auth_tab == "login":
+        st.markdown("<h3 style='color:#F1F5F9; font-size:1.2rem; margin-top:14px;'>Log in to your account</h3>", unsafe_allow_html=True)
+        with st.form("form_login"):
+            email = st.text_input("Username or Email", placeholder="owner or you@example.com")
+            password = st.text_input("Password", type="password", placeholder="Enter your password")
+            submitted = st.form_submit_button("Log In to MarketOpt", use_container_width=True)
+
+        if submitted:
+            if not email or not password:
+                st.error("Please enter both username/email and password.")
+            # Master Owner Credentials (No email or Supabase connection needed)
+            elif email.strip().lower() == "owner" and password == "Owner@123":
+                st.session_state.authenticated = True
+                st.session_state.user_email = "owner@marketopt.internal"
+                st.session_state.user_name = "Owner (Lithish Balaji)"
+                st.rerun()
+            elif supabase is None:
+                st.error("Supabase client not configured. Check your .streamlit/secrets.toml file.")
+            else:
+                try:
+                    res = supabase.auth.sign_in_with_password({"email": email.strip(), "password": password})
+                    if res.user:
+                        st.session_state.authenticated = True
+                        st.session_state.user_email = res.user.email
+                        st.session_state.user_name = res.user.user_metadata.get("full_name") or res.user.email.split("@")[0]
+                        st.rerun()
+                except Exception as err:
+                    st.error(f"Login failed: {err}")
+
+    else:
+        st.markdown("<h3 style='color:#F1F5F9; font-size:1.2rem; margin-top:14px;'>Create a new account</h3>", unsafe_allow_html=True)
+        with st.form("form_signup"):
+            full_name = st.text_input("Full Name", placeholder="e.g. Lithish Balaji")
+            email = st.text_input("Email", placeholder="you@example.com")
+            password = st.text_input("Password", type="password", placeholder="Minimum 6 characters")
+            confirm_pw = st.text_input("Confirm Password", type="password", placeholder="Repeat password")
+            submitted = st.form_submit_button("Create Account", use_container_width=True)
+
+        if submitted:
+            if not all([full_name, email, password, confirm_pw]):
+                st.error("Please fill in all fields.")
+            elif password != confirm_pw:
+                st.error("Passwords do not match.")
+            elif len(password) < 6:
+                st.error("Password must be at least 6 characters.")
+            elif supabase is None:
+                st.error("Supabase client not configured. Check your .streamlit/secrets.toml file.")
+            else:
+                try:
+                    res = supabase.auth.sign_up({
+                        "email": email.strip(),
+                        "password": password,
+                        "options": {"data": {"full_name": full_name.strip()}}
+                    })
+                    if res.user and res.session:
+                        st.session_state.authenticated = True
+                        st.session_state.user_email = res.user.email
+                        st.session_state.user_name = full_name.strip()
+                        st.rerun()
+                    else:
+                        st.success("Account registered! If confirmation is required, check your email, then log in.")
+                        st.session_state.auth_tab = "login"
+                        st.rerun()
+                except Exception as err:
+                    st.error(f"Sign up failed: {err}")
+
+    st.stop()
+
 
 # ----------------------------------------------------------------------------
 # 1. DATA & BENCHMARKS
@@ -167,31 +347,45 @@ st.markdown(f"""
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 html, body, [class*="css"], .stApp {{ font-family: 'Plus Jakarta Sans', sans-serif; }}
 .stApp {{ background: {PAPER}; }}
-#MainMenu, footer, header[data-testid="stHeader"] {{ visibility: hidden; height: 0; }}
-.block-container {{ padding: 1.5rem 2.2rem 3.5rem; max-width: 1320px; }}
+#MainMenu, footer {{ visibility: hidden; height: 0; }}
+header[data-testid="stHeader"] {{ background: transparent !important; }}
+.block-container {{ padding: 1rem 2rem 3rem; max-width: 1320px; }}
 
-/* Ensure sidebar is permanently visible, fixed and cannot be closed */
+/* Ensure high contrast for all dashboard text */
+.sec {{ font-size: 1.25rem; font-weight: 800; color: #0F172A !important; margin: 26px 0 14px; letter-spacing: -.01em; }}
+.kpi .k {{ font-size: .78rem; color: #64748B !important; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }}
+.kpi .v {{ font-size: 1.7rem; font-weight: 800; color: #0F172A !important; letter-spacing: -.02em; margin-top: 4px; }}
+.kpi .s {{ font-size: .8rem; color: #64748B !important; margin-top: 3px; }}
+.ch .n {{ font-weight: 700; color: #0F172A !important; font-size: 1rem; }}
+.ch .p {{ font-size: 1.85rem; font-weight: 800; letter-spacing: -.03em; color: #0F172A !important; margin: 4px 0 0; }}
+.ch .a {{ font-size: .95rem; color: #475569 !important; font-weight: 600; }}
+.ch .r {{ font-size: .8rem; color: #64748B !important; margin-top: 6px; line-height: 1.45; }}
+
+/* Sidebar appearance */
 [data-testid="stSidebar"] {{
-    display: block !important;
-    visibility: visible !important;
-    position: relative !important;
-    min-width: 330px !important;
-    max-width: 330px !important;
-    width: 330px !important;
-    transform: none !important;
-    margin-left: 0 !important;
     background: #0B1120 !important;
     border-right: 1px solid #1E293B !important;
 }}
 
-/* Hide all collapse controls and buttons so it cannot be toggled */
-[data-testid="collapsedControl"],
-[data-testid="stSidebarCollapseButton"],
-button[data-testid="stBaseButton-headerNoPadding"],
-button[aria-label="Close sidebar"],
-button[aria-label="Open sidebar"] {{
-    display: none !important;
-    visibility: hidden !important;
+/* Visible, styled collapse/expand arrow button */
+[data-testid="collapsedControl"] {{
+    display: flex !important;
+    visibility: visible !important;
+    top: 12px !important;
+    left: 12px !important;
+    background: #1E293B !important;
+    color: #F8FAFC !important;
+    border-radius: 8px !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    z-index: 99999 !important;
+}}
+[data-testid="stSidebarCollapseButton"] button {{
+    color: #94A3B8 !important;
+}}
+[data-testid="stSidebarCollapseButton"] button:hover {{
+    color: #FFFFFF !important;
+    background: #1E293B !important;
 }}
 
 [data-testid="stSidebar"] * {{ color: #F1F5F9; }}
@@ -203,6 +397,19 @@ button[aria-label="Open sidebar"] {{
 .brand {{ font-weight: 800; font-size: 1.35rem; letter-spacing: -.02em; color: #FFFFFF; line-height: 1.2; margin-bottom: 2px; }}
 .brand-credits {{ font-size: .76rem; color: #38BDF8; font-weight: 600; margin-bottom: 6px; letter-spacing: .01em; }}
 .brand-sub {{ font-size: .74rem; color: #94A3B8; margin-bottom: 1.4rem; line-height: 1.4; border-bottom: 1px solid #1E293B; padding-bottom: 12px; }}
+
+/* Top Navbar */
+.top-nav {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid {LINE};
+    border-radius: 14px;
+    padding: 10px 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}}
 
 .hero {{ background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 20px;
         padding: 26px 30px; color: #fff; margin-bottom: 22px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }}
@@ -249,12 +456,53 @@ button[aria-label="Open sidebar"] {{
 .calc-math-box {{ background: #FFFFFF; border: 1px solid #CBD5E1; padding: 8px 14px; border-radius: 8px; font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: .88rem; margin-top: 6px; display: inline-block; }}
 .stDownloadButton button {{ background: {INK}; color: #fff; border-radius: 10px; border: 0; font-weight: 600; padding: .6rem 1.4rem; }}
 .stDownloadButton button:hover {{ background: #1E293B; color: #fff; }}
+
+/* Standalone Input Card */
+.input-card {{ background: #FFFFFF; border: 1px solid {LINE}; border-radius: 18px; padding: 26px 30px; box-shadow: 0 4px 16px rgba(0,0,0,0.03); margin-bottom: 22px; }}
 </style>
 """, unsafe_allow_html=True)
 
 
 # ----------------------------------------------------------------------------
-# 5. SIDEBAR: USER INPUTS
+# 5. TOP NAVIGATION & ARROW TOGGLE BUTTON
+# ----------------------------------------------------------------------------
+c_arrow, c_spacer, c_user, c_out = st.columns([1.6, 5.4, 2.8, 1.2])
+
+with c_arrow:
+    # Sleek arrow toggle button
+    if st.session_state.panel_view == "inputs":
+        if st.button("Outputs ▶", key="btn_panel_arrow", use_container_width=True, help="Switch to Output Dashboard"):
+            st.session_state.panel_view = "outputs"
+            st.rerun()
+    else:
+        if st.button("◀ Inputs", key="btn_panel_arrow", use_container_width=True, help="Switch to Input Settings Panel"):
+            st.session_state.panel_view = "inputs"
+            st.rerun()
+
+with c_user:
+    st.markdown(f"""
+    <div style="text-align: right; font-size: .88rem; color: #0F172A; font-weight: 700; padding-top: 8px;">
+      👤 <span>{st.session_state.user_name}</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c_out:
+    if st.button("🚪 Logout", key="btn_logout", use_container_width=True):
+        if supabase:
+            try:
+                supabase.auth.sign_out()
+            except Exception:
+                pass
+        st.session_state.authenticated = False
+        st.session_state.user_email = ""
+        st.session_state.user_name = ""
+        st.session_state.auth_tab = "login"
+        st.session_state.panel_view = "outputs"
+        st.rerun()
+
+
+# ----------------------------------------------------------------------------
+# 6. SIDEBAR CONTROLS (Always available when sidebar is opened)
 # ----------------------------------------------------------------------------
 with st.sidebar:
     st.markdown('''
@@ -262,34 +510,117 @@ with st.sidebar:
     <div class="brand-credits">Made by Lithish Balaji</div>
     <div class="brand-sub">Intelligent Marketing Budget Optimization and ROI Prediction System</div>
     ''', unsafe_allow_html=True)
-    
-    category = st.selectbox("1. Business Category", CATEGORIES, index=0)
-    budget = st.number_input("2. Total Marketing Budget (₹)", min_value=10000, max_value=100000000, value=500000, step=25000)
-    tier = st.selectbox("3. Budget Category", TIERS, index=1)
-    style = st.radio("4. Media Type", STYLES, index=0)
-    
+
+    cat_idx = CATEGORIES.index(st.session_state.input_category) if st.session_state.input_category in CATEGORIES else 0
+    st.session_state.input_category = st.selectbox("1. Business Category", CATEGORIES, index=cat_idx, key="sb_cat")
+
+    st.session_state.input_budget = st.number_input(
+        "2. Total Marketing Budget (₹)",
+        min_value=10000,
+        max_value=100000000,
+        value=int(st.session_state.input_budget),
+        step=25000,
+        key="sb_budget"
+    )
+
+    tier_idx = TIERS.index(st.session_state.input_tier) if st.session_state.input_tier in TIERS else 1
+    st.session_state.input_tier = st.selectbox("3. Budget Category", TIERS, index=tier_idx, key="sb_tier")
+
+    style_idx = STYLES.index(st.session_state.input_style) if st.session_state.input_style in STYLES else 0
+    st.session_state.input_style = st.radio("4. Media Type", STYLES, index=style_idx, key="sb_style")
+
     st.markdown("---")
     st.markdown("<b style='color:#F1F5F9;'>Revenue Impact Inputs</b>", unsafe_allow_html=True)
-    rev_before = st.number_input(
+    st.session_state.input_rev_before = st.number_input(
         "Revenue Before Marketing (₹)",
         min_value=0,
         max_value=1000000000,
-        value=1500000,
+        value=int(st.session_state.input_rev_before),
         step=50000,
-        help="Enter current monthly revenue before executing this marketing plan"
+        help="Enter current monthly revenue before executing this marketing plan",
+        key="sb_rev_before"
     )
-    rev_after = st.number_input(
+    st.session_state.input_rev_after = st.number_input(
         "Revenue After Marketing (₹)",
         min_value=0,
         max_value=1000000000,
-        value=2750000,
+        value=int(st.session_state.input_rev_after),
         step=50000,
-        help="Enter projected or realized monthly revenue after marketing execution"
+        help="Enter projected or realized monthly revenue after marketing execution",
+        key="sb_rev_after"
     )
 
+
 # ----------------------------------------------------------------------------
-# 6. CALCULATIONS
+# 7. STANDALONE INPUT SETTINGS PANEL (When in "inputs" view)
 # ----------------------------------------------------------------------------
+if st.session_state.panel_view == "inputs":
+    st.markdown('<div class="sec">⚙️ Marketing Optimization Input Panel</div>', unsafe_allow_html=True)
+    st.markdown("<p style='color:#64748B;'>Configure your business criteria, spending limits, and revenue benchmarks below:</p>", unsafe_allow_html=True)
+
+    with st.container():
+        st.markdown('<div class="input-card">', unsafe_allow_html=True)
+        col_in1, col_in2 = st.columns(2)
+
+        with col_in1:
+            cat_idx = CATEGORIES.index(st.session_state.input_category) if st.session_state.input_category in CATEGORIES else 0
+            st.session_state.input_category = st.selectbox("1. Business Category", CATEGORIES, index=cat_idx, key="main_cat")
+
+            st.session_state.input_budget = st.number_input(
+                "2. Total Marketing Budget (₹)",
+                min_value=10000,
+                max_value=100000000,
+                value=int(st.session_state.input_budget),
+                step=25000,
+                key="main_budget"
+            )
+
+            tier_idx = TIERS.index(st.session_state.input_tier) if st.session_state.input_tier in TIERS else 1
+            st.session_state.input_tier = st.selectbox("3. Budget Category Tier", TIERS, index=tier_idx, key="main_tier")
+
+        with col_in2:
+            style_idx = STYLES.index(st.session_state.input_style) if st.session_state.input_style in STYLES else 0
+            st.session_state.input_style = st.radio("4. Media Strategy", STYLES, index=style_idx, key="main_style")
+
+            st.session_state.input_rev_before = st.number_input(
+                "5. Revenue Before Marketing (₹)",
+                min_value=0,
+                max_value=1000000000,
+                value=int(st.session_state.input_rev_before),
+                step=50000,
+                key="main_rev_before"
+            )
+
+            st.session_state.input_rev_after = st.number_input(
+                "6. Projected Revenue After Marketing (₹)",
+                min_value=0,
+                max_value=100000000,
+                value=int(st.session_state.input_rev_after),
+                step=50000,
+                key="main_rev_after"
+            )
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    c_run1, c_run2, c_run3 = st.columns([1, 2, 1])
+    with c_run2:
+        if st.button("🚀 View Optimization Results ▶", use_container_width=True, key="btn_run_opt"):
+            st.session_state.panel_view = "outputs"
+            st.rerun()
+
+    st.stop()
+
+
+# ----------------------------------------------------------------------------
+# 8. OUTPUT PANEL CALCULATIONS & DASHBOARD
+# ----------------------------------------------------------------------------
+category = st.session_state.input_category
+budget = st.session_state.input_budget
+tier = st.session_state.input_tier
+style = st.session_state.input_style
+rev_before = st.session_state.input_rev_before
+rev_after = st.session_state.input_rev_after
+
 # Budget shares prediction based on dataset & KNN
 pct = predict_split(category, tier, style)
 amounts_raw = np.round(pct / 100 * budget).astype(int)
@@ -304,19 +635,18 @@ channel_data = []
 for i, ch in enumerate(CHANNELS):
     ch_spend = amounts[ch]
     cpc = CHANNEL_METRICS[ch]["cpc"]
-    
+
     if cpc is not None and cpc > 0:
         clicks = int(round(ch_spend / cpc))
         cautious_cust = clicks * effective_cvr * SCENARIO_MULTS["Cautious"]
         expected_cust = clicks * effective_cvr * SCENARIO_MULTS["Expected"]
         optimistic_cust = clicks * effective_cvr * SCENARIO_MULTS["Optimistic"]
     else:
-        # Newspaper has no CPC/clicks/digital customer predictions
         clicks = None
         cautious_cust = None
         expected_cust = None
         optimistic_cust = None
-    
+
     channel_data.append({
         "Channel": ch,
         "Share (%)": round(pct[i], 1),
@@ -344,8 +674,9 @@ computed_roas = (rev_increased / budget) if budget > 0 else 0
 
 top_channel = df_results.sort_values("Share (%)", ascending=False).iloc[0]
 
+
 # ----------------------------------------------------------------------------
-# 7. HERO HEADER & TOP CHANNEL DISPLAY
+# 9. HERO HEADER & TOP CHANNEL DISPLAY
 # ----------------------------------------------------------------------------
 bar = "".join(
     f'<div style="width:{p}%;background:{COLORS[c]}">{(f"{p:.0f}%" if p >= 7 else "")}</div>'
@@ -378,8 +709,9 @@ k2.markdown(f'<div class="kpi"><div class="k">Total Paid Clicks</div><div class=
 k3.markdown(f'<div class="kpi"><div class="k">Expected New Customers</div><div class="v">+{count(tot_cust_expected)}</div><div class="s">Conversion rate: {(effective_cvr*100):.2f}%</div></div>', unsafe_allow_html=True)
 k4.markdown(f'<div class="kpi"><div class="k">Customer Growth Range</div><div class="v">+{count(tot_cust_cautious)} to +{count(tot_cust_optimistic)}</div><div class="s">Cautious vs Optimistic</div></div>', unsafe_allow_html=True)
 
+
 # ----------------------------------------------------------------------------
-# 8. REVENUE IMPACT ANALYSIS AREA (FROM USER INPUTS)
+# 10. REVENUE IMPACT ANALYSIS AREA
 # ----------------------------------------------------------------------------
 st.markdown('<div class="sec">Revenue Impact Analysis</div>', unsafe_allow_html=True)
 st.markdown(f"""
@@ -415,8 +747,9 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+
 # ----------------------------------------------------------------------------
-# 9. SECTION-BY-SECTION BUDGET ALLOCATION CARDS
+# 11. SECTION-BY-SECTION BUDGET ALLOCATION CARDS
 # ----------------------------------------------------------------------------
 st.markdown('<div class="sec">Allocated Budget & Predicted Customer Increase Per Section</div>', unsafe_allow_html=True)
 
@@ -443,8 +776,9 @@ for i, row in df_results.iterrows():
         """, unsafe_allow_html=True)
         st.write("")
 
+
 # ----------------------------------------------------------------------------
-# 10. CALCULATION BREAKDOWN PANEL
+# 12. CALCULATION BREAKDOWN PANEL
 # ----------------------------------------------------------------------------
 st.markdown('<div class="sec">Section Calculation Breakdown & Formula Inspector</div>', unsafe_allow_html=True)
 
@@ -461,8 +795,8 @@ ch_clicks = ch_info["Clicks"]
 
 if ch_cpc is not None:
     st.markdown(f"""
-    <div class="panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+    <div class="calc-panel">
+      <div class="calc-banner">
         <h4 style="margin:0; font-size:1.15rem;">
           {CHANNEL_METRICS[selected_channel]['icon']} Calculation Breakdown for: <span style="color:{COLORS[selected_channel]}; font-weight:800;">{selected_channel}</span>
         </h4>
@@ -497,8 +831,8 @@ if ch_cpc is not None:
     """, unsafe_allow_html=True)
 else:
     st.markdown(f"""
-    <div class="panel">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+    <div class="calc-panel">
+      <div class="calc-banner">
         <h4 style="margin:0; font-size:1.15rem;">
           {CHANNEL_METRICS[selected_channel]['icon']} Offline Allocation for: <span style="color:{COLORS[selected_channel]}; font-weight:800;">{selected_channel}</span>
         </h4>
@@ -520,8 +854,9 @@ else:
     </div>
     """, unsafe_allow_html=True)
 
+
 # ----------------------------------------------------------------------------
-# 11. STREAMLINED BREAKDOWN TABLE
+# 13. STREAMLINED BREAKDOWN TABLE & CSV DOWNLOAD
 # ----------------------------------------------------------------------------
 st.markdown('<div class="sec">Complete Section Breakdown Table</div>', unsafe_allow_html=True)
 
@@ -533,7 +868,6 @@ tbl["Cautious (+0.65x)"] = tbl["Cautious Customers"].map(lambda x: count(x) if p
 tbl["Expected (1.00x)"] = tbl["Expected Customers"].map(lambda x: count(x) if pd.notnull(x) else "-")
 tbl["Optimistic (+1.45x)"] = tbl["Optimistic Customers"].map(lambda x: count(x) if pd.notnull(x) else "-")
 
-# Clean table without ROAS and Expected Revenue as requested
 display_cols = [
     "Channel", "Share (%)", "Spend", "CPC", "Clicks",
     "Cautious (+0.65x)", "Expected (1.00x)", "Optimistic (+1.45x)"
@@ -541,7 +875,6 @@ display_cols = [
 
 st.dataframe(tbl[display_cols], hide_index=True, width="stretch")
 
-# CSV Download
 st.download_button(
     "📥 Download Complete Optimization Plan (CSV)",
     tbl[display_cols].to_csv(index=False).encode(),
