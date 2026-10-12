@@ -48,7 +48,7 @@ html, body, [class*="css"], .stApp {
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     background: #0B1120 !important;
 }
-#MainMenu, footer, header[data-testid="stHeader"], [data-testid="stSidebar"], [data-testid="collapsedControl"] {
+#MainMenu, footer, header[data-testid="stHeader"] {
     display: none !important;
     visibility: hidden !important;
 }
@@ -430,6 +430,8 @@ header[data-testid="stHeader"] {{ background: transparent !important; }}
 
 /* Sidebar Appearance */
 [data-testid="stSidebar"] {{
+    display: block !important;
+    visibility: visible !important;
     background: #0B1120 !important;
     border-right: 1px solid #1E293B !important;
 }}
@@ -445,6 +447,7 @@ header[data-testid="stHeader"] {{ background: transparent !important; }}
 [data-testid="collapsedControl"] {{
     display: flex !important;
     visibility: visible !important;
+    opacity: 1 !important;
     top: 14px !important;
     left: 14px !important;
     background: #0B1120 !important;
@@ -452,9 +455,9 @@ header[data-testid="stHeader"] {{ background: transparent !important; }}
     border-radius: 10px !important;
     color: #FFFFFF !important;
     box-shadow: 0 4px 14px rgba(0,0,0,0.3) !important;
-    z-index: 99999 !important;
-    padding: 2px !important;
-    transition: all .2s ease !important;
+    z-index: 999999 !important;
+    padding: 4px !important;
+    cursor: pointer !important;
 }}
 [data-testid="collapsedControl"]:hover {{
     background: #1E293B !important;
